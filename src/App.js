@@ -1,5 +1,5 @@
 import { useState } from "react";
-const initialFriends = [
+let initialFriends = [
   {
     id: 118836,
     name: "Clark",
@@ -29,17 +29,27 @@ function Button({ onClick, children }) {
 }
 
 export default function App() {
+  const [friends, setFriends] = useState(initialFriends);
   const [open, setOpen] = useState(false);
 
   function handleOpen() {
     setOpen(!open);
   }
 
+  function handleAddFriend(friend) {
+    setFriends((friends) => [...friends, friend]);
+    setOpen(false);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
-        <FriendsList />
-        <FormAddFriend open={open} />
+        <FriendsList friends={friends} />
+        <FormAddFriend
+          open={open}
+          onAddFriend={handleAddFriend}
+          onOpen={handleOpen}
+        />
         <Button onClick={handleOpen}>
           {open === false ? "Add friend" : "Close"}
         </Button>
@@ -49,24 +59,10 @@ export default function App() {
   );
 }
 
-function FormAddFriend({ open }) {
-  return open ? (
-    <form className="form-add-friend">
-      <label>👭 Friend name </label>
-      <input type="text"></input>
-
-      <label>🌆 Image URL</label>
-      <input type="text"></input>
-
-      <Button>Add</Button>
-    </form>
-  ) : null;
-}
-
-function FriendsList() {
+function FriendsList({ friends }) {
   return (
     <ul>
-      {initialFriends.map((friend) => (
+      {friends.map((friend) => (
         <Friend friend={friend} key={friend.id} />
       ))}
     </ul>
@@ -94,6 +90,50 @@ function Friend({ friend }) {
       <Button>Select</Button>
     </li>
   );
+}
+
+function FormAddFriend({ open, onAddFriend }) {
+  const [name, setName] = useState("");
+  const [imgUrl, setImgUrl] = useState("https://i.pravatar.cc/48");
+
+  function handleName(e) {
+    setName(e.target.value);
+  }
+
+  function handleImgUrl(e) {
+    setImgUrl(e.target.value);
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!name || !imgUrl) return;
+    const id = crypto.randomUUID();
+
+    const newFriend = {
+      id,
+      name,
+      image: `${imgUrl}?=${id}`,
+      balance: 0,
+    };
+
+    onAddFriend(newFriend);
+
+    setName("");
+    setImgUrl("https://i.pravatar.cc/48");
+  }
+
+  return open ? (
+    <form className="form-add-friend" onSubmit={handleSubmit}>
+      <label>👭 Friend name </label>
+      <input type="text" onChange={handleName} value={name}></input>
+
+      <label>🌆 Image URL</label>
+      <input type="text" onChange={handleImgUrl} value={imgUrl}></input>
+
+      <Button>Add</Button>
+    </form>
+  ) : null;
 }
 
 function FormSplitBill() {
