@@ -1,3 +1,4 @@
+import { useState } from "react";
 const initialFriends = [
   {
     id: 118836,
@@ -19,17 +20,47 @@ const initialFriends = [
   },
 ];
 
+function Button({ onClick, children }) {
+  return (
+    <button className="button" onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
 export default function App() {
+  const [open, setOpen] = useState(false);
+
+  function handleOpen() {
+    setOpen(!open);
+  }
+
   return (
     <div className="app">
       <div className="sidebar">
         <FriendsList />
-        <Button>Add Friend</Button>
-        <FormAddFriend />
+        <FormAddFriend open={open} />
+        <Button onClick={handleOpen}>
+          {open === false ? "Add friend" : "Close"}
+        </Button>
       </div>
       <FormSplitBill />
     </div>
   );
+}
+
+function FormAddFriend({ open }) {
+  return open ? (
+    <form className="form-add-friend">
+      <label>👭 Friend name </label>
+      <input type="text"></input>
+
+      <label>🌆 Image URL</label>
+      <input type="text"></input>
+
+      <Button>Add</Button>
+    </form>
+  ) : null;
 }
 
 function FriendsList() {
@@ -62,24 +93,6 @@ function Friend({ friend }) {
       </div>
       <Button>Select</Button>
     </li>
-  );
-}
-
-function Button({ children }) {
-  return <button className="button">{children}</button>;
-}
-
-function FormAddFriend() {
-  return (
-    <form className="form-add-friend">
-      <label>👭 Friend name </label>
-      <input type="text"></input>
-
-      <label>🌆 Image URL</label>
-      <input type="text"></input>
-
-      <Button>Add</Button>
-    </form>
   );
 }
 
